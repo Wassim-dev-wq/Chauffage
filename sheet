@@ -1,0 +1,118 @@
+#include <stdlib.h>
+#include <stdio.h>
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <unistd.h>
+#include <netinet/in.h>
+#include <string.h>
+#include <arpa/inet.h>
+#include <sys/ipc.h>
+#include <sys/msg.h>
+#include <pthread.h>
+#include "MessageTemperature.h"
+#include "server.h"
+#define PORT 3000
+#define MSGBUFSIZE 50
+
+#define MAX 240
+// COMMUNICATION TEMPERATURE
+
+
+void *function(void *arg)
+{
+    printf("hello");
+    // int socket = *(int *)arg;
+    // // send(socket, msg, strlen(msg) + 1, 0);
+    // while (1)
+    // {
+    //     char arr[5][10];
+
+    //     // ftok to generate unique key
+    //     // display the message
+    // Message *msg = (struct Message *)malloc(sizeof(Message));
+
+    //     size_t sizeMsg = sizeof(*msg);
+    //     int numBytes = (int)write(socket, msg, sizeMsg);
+    //     if (numBytes < 0)
+    //     {
+    //         error("Client could not write to TCP socket");
+    //     }
+    //     free(msg);
+
+    //     int siz = 5;
+    //     char string_arr[5][15];
+    //     int nbbytes = read(socket, string_arr, sizeof(string_arr));
+    //     if (nbbytes < 0)
+    //     {
+    //         perror("[TCP] No data received");
+    //         exit(0);
+    //     }
+    //     arrayData *msg_buffe = (struct arrayData *)malloc(sizeof(arrayData));
+    //     msg_buffe->mesg_type = 1;
+    //     for (int i = 0; i < 5; i++)
+    //     {
+    //         if (strlen(string_arr[i]) != 0)
+    //         {
+    //             strcpy(msg_buffe->arr[i], string_arr[i]);
+    //             printf(">> Piece [%d] = %s\n", i, msg_buffe->arr[i]);
+    //         }
+    //     }
+    //     free(msg_buffe);
+    // }
+    // close(socket);
+    // free(arg);
+    // pthread_exit(NULL);
+}
+
+
+void multi(struct Message *msg){
+    printf("[MULTI 2] Data Received: Numero = %d ||  Type = %d  ||  Niveau = %d\n", msg->num_piece, msg->type_fonction, msg->niveauChauffage);
+    struct sockaddr_in servaddr;
+    int socketServer = socket(AF_INET, SOCK_STREAM, 0);
+    if (socketServer == -1)
+    {
+        printf("socket creation failed ..\n");
+        exit(0);
+    }
+    servaddr.sin_family = AF_INET;
+    servaddr.sin_addr.s_addr = htonl(INADDR_ANY);
+    servaddr.sin_port = htons(PORT);
+
+    if ((bind(socketServer, (struct sockaddr *)&servaddr, sizeof(servaddr))) != 0)
+    {
+        printf("socket bind failed ..\n");
+        exit(0);
+    }
+    printf("bind : Socket server num %d\n", socketServer);
+
+    if ((listen(socketServer, 5)) != 0)
+    {
+        printf("Listen failed ...\n");
+    };
+    printf("Server listening\n");
+
+    pthread_t threads[9];
+    char client [9][30];
+    for (int i = 0; i < 9; i++)
+    {
+
+        struct sockaddr_in addrClient;
+        socklen_t csize = sizeof(addrClient);
+        int socketClient = accept(socketServer, (struct sockaddr *)&addrClient, &csize);
+        printf("accept\n");
+        printf("client : %d\n", socketClient);
+
+        int *arg = malloc(sizeof(int));
+        // *arg = socketClient;
+        // pthread_create(&threads[i], NULL, function, arg);
+    }
+
+    // for (int i = 0; i < 9; i++)
+    // {
+    //     pthread_join(threads[i], NULL);
+    // }
+
+    // close(socketServer);
+    // printf("close\n");
+    exit(0);
+}
